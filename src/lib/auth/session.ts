@@ -3,7 +3,7 @@ import { and, eq, gt } from "drizzle-orm";
 import { db } from "@/db";
 import { sessions, users } from "@/db/schema";
 
-const COOKIE_NAME = "session";
+export const COOKIE_NAME = "session";
 const SESSION_DAYS = 7;
 
 export async function createSession(userId: string) {
@@ -25,7 +25,10 @@ export async function getCurrentUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;
+  return getUserByToken(token);
+}
 
+export async function getUserByToken(token: string) {
   const rows = await db
     .select({ id: users.id, email: users.email, name: users.name, role: users.role })
     .from(sessions)

@@ -28,7 +28,7 @@ export async function registerAction(
 
   const existingUser = await db.select().from(users).where(eq(users.email, parsed.data.email));
   if (existingUser.length > 0) {
-    return { error: "Ese email ya está registrado" };
+    return { error: "That email is already registered" };
   }
 
   const hash = await hashPassword(parsed.data.password)

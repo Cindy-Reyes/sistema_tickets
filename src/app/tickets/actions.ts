@@ -15,8 +15,6 @@ import { requireUser, requireAdmin } from "@/lib/auth/guards";
 
 type ActionState = { error: string | null };
 
-// ---------------------------------------------------------------
-// Crear ticket. Cualquier usuario logueado puede crear el suyo.
 export async function createTicketAction(
   _prev: ActionState,
   formData: FormData,
@@ -36,17 +34,13 @@ export async function createTicketAction(
     .values({
       title: parsed.data.title,
       description: parsed.data.description,
-      createdById: user.id, // <- el dueño SIEMPRE es quien está logueado,
-      //    nunca un valor que venga del formulario/cliente.
+      createdById: user.id,
     })
     .returning({ id: tickets.id });
 
   redirect(`/tickets/${ticket.id}`);
 }
 
-// ---------------------------------------------------------------
-// Editar ticket. Se usa con .bind(null, ticketId) desde el formulario,
-// así llega como primer argumento antes que (prevState, formData).
 export async function updateTicketAction(
   ticketId: string,
   _prev: ActionState,
@@ -64,14 +58,11 @@ export async function updateTicketAction(
 
   const [ticket] = await db.select().from(tickets).where(eq(tickets.id, ticketId));
 
-  // ESTA es la verificación central de seguridad de la edición:
-  // sin importar qué mande el formulario, se vuelve a comprobar en el
-  // servidor que (a) el ticket existe y (b) es del usuario logueado.
   if (!ticket || ticket.createdById !== user.id) {
-    return { error: "No tienes permiso para editar este ticket" };
+    return { error: "You don't have permission to edit this ticket" };
   }
   if (ticket.status === "RESOLVED") {
-    return { error: "No se puede editar un ticket ya resuelto" };
+    return { error: "A resolved ticket can't be edited" };
   }
 
   await db
@@ -82,8 +73,6 @@ export async function updateTicketAction(
   redirect(`/tickets/${ticketId}`);
 }
 
-// ---------------------------------------------------------------
-// Agregar comentario. Dueño del ticket O admin pueden comentar.
 export async function addCommentAction(
   ticketId: string,
   _prev: ActionState,
@@ -98,10 +87,10 @@ export async function addCommentAction(
 
   const [ticket] = await db.select().from(tickets).where(eq(tickets.id, ticketId));
   if (!ticket) {
-    return { error: "Ticket no encontrado" };
+    return { error: "Ticket not found" };
   }
   if (user.role !== "ADMIN" && ticket.createdById !== user.id) {
-    return { error: "No tienes permiso para comentar este ticket" };
+    return { error: "You don't have permission to comment on this ticket" };
   }
 
   await db.insert(comments).values({
@@ -114,8 +103,6 @@ export async function addCommentAction(
   return { error: null };
 }
 
-// ---------------------------------------------------------------
-// Cambiar estado. SOLO admin (requireAdmin corta si no lo es).
 export async function updateStatusAction(ticketId: string, formData: FormData) {
   await requireAdmin();
 
@@ -126,8 +113,6 @@ export async function updateStatusAction(ticketId: string, formData: FormData) {
   revalidatePath(`/tickets/${ticketId}`);
 }
 
-// ---------------------------------------------------------------
-// Cambiar prioridad. SOLO admin.
 export async function updatePriorityAction(ticketId: string, formData: FormData) {
   await requireAdmin();
 

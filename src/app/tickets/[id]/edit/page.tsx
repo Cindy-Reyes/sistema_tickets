@@ -14,9 +14,6 @@ export default async function EditTicketPage({
   const ticket = await getTicketById(id);
   if (!ticket) notFound();
 
-  // Misma regla que en la action: solo el dueño, y solo si no está resuelto.
-  // Esto evita que alguien llegue a /tickets/otro-id/edit escribiendo la URL
-  // a mano y vea el formulario, aunque la action también lo revise después.
   if (ticket.createdById !== user.id) notFound();
   if (ticket.status === "RESOLVED") notFound();
 

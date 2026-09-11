@@ -16,7 +16,7 @@ export default function NewTicketPage() {
         className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-sm ring-1 ring-pink-100"
       >
         <h1 className="mb-6 text-2xl font-semibold text-pink-900">
-          Nuevo ticket
+          New ticket
         </h1>
 
         {state.error && (
@@ -27,7 +27,7 @@ export default function NewTicketPage() {
 
         <div className="mb-4">
           <label htmlFor="title" className="mb-1 block text-sm font-medium text-pink-800">
-            Título
+            Title
           </label>
           <input
             id="title"
@@ -40,7 +40,7 @@ export default function NewTicketPage() {
 
         <div className="mb-6">
           <label htmlFor="description" className="mb-1 block text-sm font-medium text-pink-800">
-            Descripción
+            Description
           </label>
           <textarea
             id="description"
@@ -57,10 +57,10 @@ export default function NewTicketPage() {
             disabled={isPending}
             className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isPending ? "Creando..." : "Crear ticket"}
+            {isPending ? "Creating..." : "Create ticket"}
           </button>
           <Link href="/" className="text-sm text-pink-500 underline">
-            Cancelar
+            Cancel
           </Link>
         </div>
       </form>

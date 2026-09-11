@@ -5,19 +5,17 @@ import { getTicketWithComments } from "@/lib/tickets/queries";
 import { updateStatusAction, updatePriorityAction } from "../actions";
 import CommentForm from "./CommentForm";
 
-// Nunca sirvas esta página desde caché: se actualiza seguido (estado,
-// prioridad, comentarios) y siempre debe reflejar la base de datos al momento.
 export const dynamic = "force-dynamic";
 
 const STATUS_LABEL: Record<string, string> = {
-  OPEN: "Abierto",
-  IN_PROGRESS: "En progreso",
-  RESOLVED: "Resuelto",
+  OPEN: "Open",
+  IN_PROGRESS: "In progress",
+  RESOLVED: "Resolved",
 };
 const PRIORITY_LABEL: Record<string, string> = {
-  LOW: "Baja",
-  MEDIUM: "Media",
-  HIGH: "Alta",
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
 };
 
 export default async function TicketDetailPage({
@@ -29,17 +27,12 @@ export default async function TicketDetailPage({
   const { id } = await params;
 
   const data = await getTicketWithComments(id);
-  if (!data) notFound(); // el ID no existe -> 404, ni una pista de si "existía o no era tuyo"
+  if (!data) notFound();
 
   const { ticket, comments } = data;
   const isAdmin = user.role === "ADMIN";
   const isOwner = ticket.createdById === user.id;
 
-  // *** LA VERIFICACIÓN DE SEGURIDAD MÁS IMPORTANTE DE TODA LA APP ***
-  // Si no eres ni el dueño ni admin, para ti este ticket "no existe" (404),
-  // sin importar que hayas escrito el ID correcto a mano en la URL.
-  // Esto es justo lo que pide el enunciado: ocultar el link no basta,
-  // aquí se revisa en el servidor pase lo que pase.
   if (!isOwner && !isAdmin) notFound();
 
   const canEdit = isOwner && ticket.status !== "RESOLVED";
@@ -48,7 +41,7 @@ export default async function TicketDetailPage({
     <main className="min-h-screen bg-pink-50 px-4 py-10">
       <div className="mx-auto max-w-2xl">
         <Link href="/" className="mb-4 inline-block text-sm text-pink-500 underline">
-          ← Volver
+          ← Back
         </Link>
 
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-pink-100">
@@ -59,7 +52,7 @@ export default async function TicketDetailPage({
                 href={`/tickets/${ticket.id}/edit`}
                 className="rounded-lg border border-pink-200 px-3 py-1 text-sm text-pink-700 hover:bg-pink-50"
               >
-                Editar
+                Edit
               </Link>
             )}
           </div>
@@ -67,8 +60,8 @@ export default async function TicketDetailPage({
           <p className="mb-4 whitespace-pre-wrap text-pink-800">{ticket.description}</p>
 
           <div className="mb-2 flex flex-wrap gap-4 text-sm text-pink-500">
-            <span>Creado: {ticket.createdAt.toLocaleString()}</span>
-            <span>Actualizado: {ticket.updatedAt.toLocaleString()}</span>
+            <span>Created: {ticket.createdAt.toLocaleString()}</span>
+            <span>Updated: {ticket.updatedAt.toLocaleString()}</span>
           </div>
 
           {!isAdmin && (
@@ -82,49 +75,45 @@ export default async function TicketDetailPage({
             </div>
           )}
 
-          {/* Controles de admin: cambiar estado y prioridad.
-              Son server actions "atadas" (.bind) al id del ticket, usadas
-              directo como action del form -- no hacen falta ni useActionState
-              ni "use client" porque no mostramos error, solo recargan la página. */}
           {isAdmin && (
             <div className="mt-4 flex flex-wrap gap-3 border-t border-pink-100 pt-4">
               <form action={updateStatusAction.bind(null, ticket.id)} className="flex items-center gap-2">
-                <label className="text-sm text-pink-700">Estado:</label>
+                <label className="text-sm text-pink-700">Status:</label>
                 <select
                   key={ticket.status}
                   name="status"
                   defaultValue={ticket.status}
                   className="rounded-lg border border-pink-200 px-2 py-1 text-sm text-pink-700"
                 >
-                  <option value="OPEN">Abierto</option>
-                  <option value="IN_PROGRESS">En progreso</option>
-                  <option value="RESOLVED">Resuelto</option>
+                  <option value="OPEN">Open</option>
+                  <option value="IN_PROGRESS">In progress</option>
+                  <option value="RESOLVED">Resolved</option>
                 </select>
                 <button
                   type="submit"
                   className="rounded-lg bg-pink-500 px-2 py-1 text-xs font-medium text-white hover:bg-pink-600"
                 >
-                  Guardar
+                  Save
                 </button>
               </form>
 
               <form action={updatePriorityAction.bind(null, ticket.id)} className="flex items-center gap-2">
-                <label className="text-sm text-pink-700">Prioridad:</label>
+                <label className="text-sm text-pink-700">Priority:</label>
                 <select
                   key={ticket.priority}
                   name="priority"
                   defaultValue={ticket.priority}
                   className="rounded-lg border border-pink-200 px-2 py-1 text-sm text-pink-700"
                 >
-                  <option value="LOW">Baja</option>
-                  <option value="MEDIUM">Media</option>
-                  <option value="HIGH">Alta</option>
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HIGH">High</option>
                 </select>
                 <button
                   type="submit"
                   className="rounded-lg bg-pink-500 px-2 py-1 text-xs font-medium text-white hover:bg-pink-600"
                 >
-                  Guardar
+                  Save
                 </button>
               </form>
             </div>
@@ -133,7 +122,7 @@ export default async function TicketDetailPage({
 
         <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-pink-100">
           <h2 className="mb-3 text-lg font-semibold text-pink-900">
-            Comentarios ({comments.length})
+            Comments ({comments.length})
           </h2>
 
           <ul className="mb-4 space-y-3">
@@ -145,7 +134,7 @@ export default async function TicketDetailPage({
               </li>
             ))}
             {comments.length === 0 && (
-              <li className="text-sm text-pink-400">Sin comentarios todavía.</li>
+              <li className="text-sm text-pink-400">No comments yet.</li>
             )}
           </ul>
 

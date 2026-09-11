@@ -16,10 +16,10 @@ export default function LoginPage() {
         className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm ring-1 ring-pink-100"
       >
         <h1 className="mb-1 text-2xl font-semibold text-pink-900">
-          Iniciar sesión
+          Log in
         </h1>
         <p className="mb-6 text-sm text-pink-400">
-          Entra para reportar y dar seguimiento a tus tickets.
+          Sign in to report and track your tickets.
         </p>
 
         {state.error && (
@@ -49,7 +49,7 @@ export default function LoginPage() {
             htmlFor="password"
             className="mb-1 block text-sm font-medium text-pink-800"
           >
-            Contraseña
+            Password
           </label>
           <input
             id="password"
@@ -65,16 +65,16 @@ export default function LoginPage() {
           disabled={isPending}
           className="w-full rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isPending ? "Entrando..." : "Entrar"}
+          {isPending ? "Logging in..." : "Log in"}
         </button>
 
         <p className="mt-5 text-center text-sm text-pink-400">
-          ¿No tienes cuenta?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             href="/register"
             className="font-medium text-pink-600 underline"
           >
-            Regístrate
+            Sign up
           </Link>
         </p>
       </form>

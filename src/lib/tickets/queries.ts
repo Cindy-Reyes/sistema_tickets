@@ -5,7 +5,6 @@ import { comments, tickets, users } from "@/db/schema";
 type StatusFilter = "OPEN" | "IN_PROGRESS" | "RESOLVED" | undefined;
 type PriorityFilter = "LOW" | "MEDIUM" | "HIGH" | undefined;
 
-// Tickets de UN usuario (para la vista de un USER: "mis tickets").
 export async function getTicketsForUser(userId: string) {
   return db
     .select()
@@ -14,8 +13,6 @@ export async function getTicketsForUser(userId: string) {
     .orderBy(desc(tickets.createdAt));
 }
 
-// TODOS los tickets, con filtros opcionales de estado/prioridad (para ADMIN).
-// Le pegamos un join a users para poder mostrar quién lo creó.
 export async function getAllTickets(filters: {
   status?: StatusFilter;
   priority?: PriorityFilter;
@@ -41,14 +38,11 @@ export async function getAllTickets(filters: {
     .orderBy(desc(tickets.createdAt));
 }
 
-// Un ticket solo (sin comentarios) -- para la página de edición.
 export async function getTicketById(ticketId: string) {
   const [ticket] = await db.select().from(tickets).where(eq(tickets.id, ticketId));
   return ticket ?? null;
 }
 
-// Un ticket + sus comentarios (para la página de detalle).
-// Devuelve null si el ticket no existe -- el llamador decide qué hacer con eso.
 export async function getTicketWithComments(ticketId: string) {
   const [ticket] = await db.select().from(tickets).where(eq(tickets.id, ticketId));
   if (!ticket) return null;

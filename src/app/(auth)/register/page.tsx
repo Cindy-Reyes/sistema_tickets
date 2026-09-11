@@ -16,10 +16,10 @@ export default function RegisterPage() {
         className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm ring-1 ring-pink-100"
       >
         <h1 className="mb-1 text-2xl font-semibold text-pink-900">
-          Crear cuenta
+          Create account
         </h1>
         <p className="mb-6 text-sm text-pink-400">
-          Regístrate para reportar y dar seguimiento a tus tickets.
+          Sign up to report and track your tickets.
         </p>
 
         {state.error && (
@@ -33,7 +33,7 @@ export default function RegisterPage() {
             htmlFor="name"
             className="mb-1 block text-sm font-medium text-pink-800"
           >
-            Nombre
+            Name
           </label>
           <input
             id="name"
@@ -65,7 +65,7 @@ export default function RegisterPage() {
             htmlFor="password"
             className="mb-1 block text-sm font-medium text-pink-800"
           >
-            Contraseña
+            Password
           </label>
           <input
             id="password"
@@ -81,13 +81,13 @@ export default function RegisterPage() {
           disabled={isPending}
           className="w-full rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isPending ? "Creando..." : "Crear cuenta"}
+          {isPending ? "Creating..." : "Create account"}
         </button>
 
         <p className="mt-5 text-center text-sm text-pink-400">
-          ¿Ya tienes cuenta?{" "}
+          Already have an account?{" "}
           <Link href="/login" className="font-medium text-pink-600 underline">
-            Inicia sesión
+            Log in
           </Link>
         </p>
       </form>

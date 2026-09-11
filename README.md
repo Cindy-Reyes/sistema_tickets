@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Tickets de Soporte
 
-## Getting Started
+Aplicación de gestión de tickets de soporte. Un empleado (`USER`) reporta problemas y da seguimiento a los suyos; un administrador (`ADMIN`) gestiona todos los tickets del sistema.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **PostgreSQL** + **Drizzle ORM**
+- Autenticación propia: sesiones en base de datos + cookie `httpOnly`
+- **Zod** para validación de formularios
+
+## Estructura del proyecto
+
+```
+src/
+  app/
+    (auth)/
+      login/          -> formulario + server action de login
+      register/        -> formulario + server action de registro
+    tickets/
+      new/              -> crear ticket
+      [id]/              -> detalle, comentarios, controles de admin
+        edit/             -> editar ticket (solo dueño, solo si no está resuelto)
+      actions.ts          -> server actions: crear, editar, comentar, cambiar estado/prioridad
+    page.tsx              -> dashboard (lista propia para USER, todos + filtros para ADMIN)
+  db/
+    schema.ts             -> modelo de datos (Drizzle)
+    index.ts              -> cliente de conexión
+  lib/
+    auth/
+      password.ts         -> hash/verificación (bcrypt)
+      session.ts           -> crear/leer/destruir sesión
+      guards.ts             -> requireUser / requireAdmin
+      actions.ts             -> logout
+    tickets/
+      queries.ts            -> consultas reutilizables
+    validations/            -> esquemas zod
+  proxy.ts                  -> protección de rutas (login requerido, redirects)
+drizzle/                    -> migraciones SQL generadas
+scripts/seed.ts              -> crea el usuario administrador inicial
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Modelo de datos
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **users**: `id (uuid)`, `email` (único), `passwordHash`, `name`, `role` (`USER` | `ADMIN`), `createdAt`
+- **tickets**: `id`, `title`, `description`, `status` (`OPEN` | `IN_PROGRESS` | `RESOLVED`), `priority` (`LOW` | `MEDIUM` | `HIGH`), `createdById` (FK a users), `createdAt`, `updatedAt`
+- **comments**: `id`, `ticketId` (FK), `authorId` (FK a users), `content`, `createdAt`
+- **sessions**: `id` (funciona como token de sesión), `userId` (FK), `expiresAt`, `createdAt`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Seguridad
 
-## Learn More
+- Contraseñas hasheadas con `bcryptjs` (nunca en texto plano).
+- Sesión con cookie `httpOnly`, `sameSite: lax`, y `secure` en producción; el token vive en una tabla `sessions` con expiración, así que se puede invalidar del lado del servidor.
+- **Dos capas de protección de rutas**: `src/proxy.ts` bloquea a nivel de ruta a quien no tiene sesión válida; `requireUser`/`requireAdmin` vuelven a validar dentro de cada página/acción.
+- **Autorización por recurso**: en `/tickets/[id]` y en cada server action se verifica que el usuario sea el dueño del ticket o un admin — si no, la respuesta es un 404 genérico, sin importar que la URL/ID se haya escrito a mano. Ver `src/app/tickets/[id]/page.tsx` y `src/app/tickets/actions.ts`.
+- Todas las validaciones de entrada (títulos, descripciones, comentarios, estado, prioridad) se revisan con `zod` **en el servidor**, nunca se confía en el cliente.
 
-To learn more about Next.js, take a look at the following resources:
+## Cómo correrlo localmente
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Instalar dependencias:
+   ```bash
+   npm install
+   ```
+2. Crear `.env.local` con la conexión a tu Postgres:
+   ```
+   DATABASE_URL="postgresql://usuario:password@localhost:5432/sistema_tickets"
+   ```
+3. Aplicar las migraciones:
+   ```bash
+   npm run db:migrate
+   ```
+4. Crear el usuario administrador:
+   ```bash
+   npm run db:seed
+   ```
+5. Levantar la app:
+   ```bash
+   npm run dev
+   ```
+6. Entrar en `http://localhost:3000`. Puedes registrarte como `USER` desde `/register`, o entrar como admin con el usuario creado por el seed.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Comando | Qué hace |
+|---|---|
+| `npm run dev` | Levanta la app en desarrollo |
+| `npm run build` / `npm run start` | Build y arranque en producción |
+| `npm run db:generate` | Genera una migración a partir de `schema.ts` |
+| `npm run db:migrate` | Aplica las migraciones pendientes |
+| `npm run db:studio` | Visor web de la base de datos |
+| `npm run db:seed` | Crea el usuario administrador inicial |

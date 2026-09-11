@@ -4,15 +4,15 @@ import { logoutAction } from "@/lib/auth/actions";
 import { getAllTickets, getTicketsForUser } from "@/lib/tickets/queries";
 
 const STATUS_LABEL: Record<string, string> = {
-  OPEN: "Abierto",
-  IN_PROGRESS: "En progreso",
-  RESOLVED: "Resuelto",
+  OPEN: "Open",
+  IN_PROGRESS: "In progress",
+  RESOLVED: "Resolved",
 };
 
 const PRIORITY_LABEL: Record<string, string> = {
-  LOW: "Baja",
-  MEDIUM: "Media",
-  HIGH: "Alta",
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
 };
 
 export default async function HomePage({
@@ -20,14 +20,11 @@ export default async function HomePage({
 }: {
   searchParams: Promise<{ status?: string; priority?: string }>;
 }) {
-  // requireUser(): si no hay sesión, esto redirige a /login solo.
-  // El proxy ya protege "/", pero esta es la segunda capa de la que hablamos.
   const user = await requireUser();
   const { status, priority } = await searchParams;
 
   const isAdmin = user.role === "ADMIN";
 
-  // Admin ve TODOS los tickets (con filtros); un USER solo ve los suyos.
   const ticketList = isAdmin
     ? await getAllTickets({
         status: status as "OPEN" | "IN_PROGRESS" | "RESOLVED" | undefined,
@@ -41,7 +38,7 @@ export default async function HomePage({
         <header className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-pink-900">
-              {isAdmin ? "Todos los tickets" : "Mis tickets"}
+              {isAdmin ? "All tickets" : "My tickets"}
             </h1>
             <p className="text-sm text-pink-400">
               {user.name} · {user.role}
@@ -52,7 +49,7 @@ export default async function HomePage({
               type="submit"
               className="rounded-lg border border-pink-200 px-3 py-1.5 text-sm text-pink-700 hover:bg-pink-100"
             >
-              Cerrar sesión
+              Log out
             </button>
           </form>
         </header>
@@ -63,39 +60,37 @@ export default async function HomePage({
               href="/tickets/new"
               className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white hover:bg-pink-600"
             >
-              + Nuevo ticket
+              + New ticket
             </Link>
           )}
 
           {isAdmin && (
-            // Form GET simple: al enviar, recarga la página con ?status=...&priority=...
-            // No necesita JS ni client component, Next lee los searchParams solo.
             <form method="get" className="flex gap-2">
               <select
                 name="status"
                 defaultValue={status ?? ""}
                 className="rounded-lg border border-pink-200 px-2 py-1.5 text-sm text-pink-700"
               >
-                <option value="">Todos los estados</option>
-                <option value="OPEN">Abierto</option>
-                <option value="IN_PROGRESS">En progreso</option>
-                <option value="RESOLVED">Resuelto</option>
+                <option value="">All statuses</option>
+                <option value="OPEN">Open</option>
+                <option value="IN_PROGRESS">In progress</option>
+                <option value="RESOLVED">Resolved</option>
               </select>
               <select
                 name="priority"
                 defaultValue={priority ?? ""}
                 className="rounded-lg border border-pink-200 px-2 py-1.5 text-sm text-pink-700"
               >
-                <option value="">Todas las prioridades</option>
-                <option value="LOW">Baja</option>
-                <option value="MEDIUM">Media</option>
-                <option value="HIGH">Alta</option>
+                <option value="">All priorities</option>
+                <option value="LOW">Low</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="HIGH">High</option>
               </select>
               <button
                 type="submit"
                 className="rounded-lg bg-pink-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-pink-600"
               >
-                Filtrar
+                Filter
               </button>
             </form>
           )}
@@ -104,7 +99,7 @@ export default async function HomePage({
         <ul className="space-y-3">
           {ticketList.length === 0 && (
             <li className="rounded-xl bg-white p-6 text-center text-sm text-pink-400 ring-1 ring-pink-100">
-              No hay tickets todavía.
+              No tickets yet.
             </li>
           )}
 
@@ -118,7 +113,7 @@ export default async function HomePage({
                   <p className="font-medium text-pink-900">{ticket.title}</p>
                   {isAdmin && "creatorName" in ticket && (
                     <p className="text-xs text-pink-400">
-                      por {ticket.creatorName}
+                      by {ticket.creatorName}
                     </p>
                   )}
                 </div>

@@ -23,7 +23,7 @@ export default function EditForm({
       action={formAction}
       className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-sm ring-1 ring-pink-100"
     >
-      <h1 className="mb-6 text-2xl font-semibold text-pink-900">Editar ticket</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-pink-900">Edit ticket</h1>
 
       {state.error && (
         <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
@@ -33,7 +33,7 @@ export default function EditForm({
 
       <div className="mb-4">
         <label htmlFor="title" className="mb-1 block text-sm font-medium text-pink-800">
-          Título
+          Title
         </label>
         <input
           id="title"
@@ -47,7 +47,7 @@ export default function EditForm({
 
       <div className="mb-6">
         <label htmlFor="description" className="mb-1 block text-sm font-medium text-pink-800">
-          Descripción
+          Description
         </label>
         <textarea
           id="description"
@@ -65,10 +65,10 @@ export default function EditForm({
           disabled={isPending}
           className="rounded-lg bg-pink-500 px-4 py-2 text-sm font-medium text-white hover:bg-pink-600 disabled:opacity-60"
         >
-          {isPending ? "Guardando..." : "Guardar cambios"}
+          {isPending ? "Saving..." : "Save changes"}
         </button>
         <Link href={`/tickets/${ticketId}`} className="text-sm text-pink-500 underline">
-          Cancelar
+          Cancel
         </Link>
       </div>
     </form>

@@ -29,12 +29,12 @@ export async function loginAction(
     .from(users)
     .where(eq(users.email, parsed.data.email));
     if (!user) {
-    return { error: "Credenciales inválidas" };
+    return { error: "Invalid credentials" };
     }
     
   const isValid = await verifyPassword(parsed.data.password, user.passwordHash);
     if (!isValid) {
-    return { error: "Credenciales inválidas" };
+    return { error: "Invalid credentials" };
     }
 
 

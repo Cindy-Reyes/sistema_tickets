@@ -1,17 +1,14 @@
 import { z } from "zod";
 
-// Se usa tanto para crear como para editar un ticket: mismos campos.
 export const ticketSchema = z.object({
-  title: z.string().min(3, "El título debe tener al menos 3 caracteres").max(200),
-  description: z.string().min(1, "La descripción es requerida"),
+  title: z.string().min(3, "Title must be at least 3 characters").max(200),
+  description: z.string().min(1, "Description is required"),
 });
 
 export const commentSchema = z.object({
-  content: z.string().min(1, "El comentario no puede estar vacío"),
+  content: z.string().min(1, "Comment can't be empty"),
 });
 
-// Estos dos reflejan exactamente los enums del schema de la BD.
-// Si el valor no es uno de estos, zod lo rechaza antes de tocar la base.
 export const updateStatusSchema = z.object({
   status: z.enum(["OPEN", "IN_PROGRESS", "RESOLVED"]),
 });

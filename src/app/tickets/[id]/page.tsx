@@ -45,7 +45,7 @@ export default async function TicketDetailPage({
         </Link>
 
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-pink-100">
-          <div className="mb-4 flex items-start justify-between">
+          <div className="mb-1 flex items-start justify-between">
             <h1 className="text-2xl font-semibold text-pink-900">{ticket.title}</h1>
             {canEdit && (
               <Link
@@ -56,6 +56,8 @@ export default async function TicketDetailPage({
               </Link>
             )}
           </div>
+
+          <p className="mb-4 text-sm text-pink-400">Created by: {ticket.creatorName}</p>
 
           <p className="mb-4 whitespace-pre-wrap text-pink-800">{ticket.description}</p>
 

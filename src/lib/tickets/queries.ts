@@ -44,7 +44,21 @@ export async function getTicketById(ticketId: string) {
 }
 
 export async function getTicketWithComments(ticketId: string) {
-  const [ticket] = await db.select().from(tickets).where(eq(tickets.id, ticketId));
+  const [ticket] = await db
+    .select({
+      id: tickets.id,
+      title: tickets.title,
+      description: tickets.description,
+      status: tickets.status,
+      priority: tickets.priority,
+      createdById: tickets.createdById,
+      createdAt: tickets.createdAt,
+      updatedAt: tickets.updatedAt,
+      creatorName: users.name,
+    })
+    .from(tickets)
+    .innerJoin(users, eq(tickets.createdById, users.id))
+    .where(eq(tickets.id, ticketId));
   if (!ticket) return null;
 
   const ticketComments = await db
